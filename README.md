@@ -51,16 +51,7 @@ pnpm run prisma:generate
 
 # Run migrations
 pnpm run prisma:migrate
-
-# Seed initial admin user
-pnpm run prisma:seed
 ```
-
-The seed script creates an admin user:
-- **Email**: `admin@example.com`
-- **Password**: `password123`
-
-**⚠️ Change these credentials in production!**
 
 4. Start the development server:
 
@@ -224,8 +215,7 @@ src/
 └── main.ts            # Application entry point
 
 prisma/
-├── schema.prisma      # Database schema
-└── seed.ts            # Database seeding script
+└── schema.prisma      # Database schema
 ```
 
 ## Database Schema
@@ -241,7 +231,6 @@ prisma/
 - `pnpm run start:prod` - Run production build
 - `pnpm run prisma:generate` - Generate Prisma Client
 - `pnpm run prisma:migrate` - Run database migrations
-- `pnpm run prisma:seed` - Seed database with initial admin user
 - `pnpm run test` - Run unit tests
 - `pnpm run test:e2e` - Run end-to-end tests
 
@@ -253,7 +242,3 @@ prisma/
 4. **HTTPS**: Always use HTTPS in production
 5. **Rate Limiting**: Consider adding rate limiting for production use
 6. **API Key Rotation**: Implement a key rotation strategy for API keys
-
-## License
-
-MIT
