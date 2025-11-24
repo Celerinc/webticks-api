@@ -1,0 +1,47 @@
+// This is your Prisma schema file for MongoDB
+// To use this schema, rename it to schema.prisma (and backup/rename the current schema.prisma)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+}
+
+model Admin {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  email       String   @unique
+  passwordHash String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("admins")
+}
+
+model ApiKey {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  keyHash     String   @unique
+  name        String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  lastUsedAt  DateTime?
+
+  @@map("api_keys")
+}
+
+model AnalyticsEvent {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  uid         String?
+  sessionId   String
+  datetime    DateTime
+  eventType   String   // 'pageview' | 'custom' | 'server_request'
+  eventData   Json     // Store the event-specific data as JSON
+  createdAt   DateTime @default(now())
+
+  @@index([sessionId])
+  @@index([uid])
+  @@index([datetime])
+  @@map("analytics_events")
+}
+
