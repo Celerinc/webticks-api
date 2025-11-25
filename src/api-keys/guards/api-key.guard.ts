@@ -18,12 +18,16 @@ export class ApiKeyGuard implements CanActivate {
       throw new ForbiddenException('API key is required');
     }
 
-    const isValid = await this.apiKeysService.validateApiKey(apiKey);
-    if (!isValid) {
+    try {
+      const isValid = await this.apiKeysService.validateApiKey(apiKey);
+      if (!isValid) {
+        throw new ForbiddenException('Invalid API key');
+      }
+      return true;
+    } catch (error) {
+      // If database error, still reject (security: fail closed)
       throw new ForbiddenException('Invalid API key');
     }
-
-    return true;
   }
 }
 

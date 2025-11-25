@@ -14,7 +14,15 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
     }
 
     // Create PostgreSQL pool and adapter factory for Prisma 7
-    const pool = new Pool({ connectionString: databaseUrl });
+    // Parse connection string and add SSL if needed
+    const poolConfig: any = { connectionString: databaseUrl };
+    
+    // Add SSL mode for secure connections (required by some providers like Koyeb)
+    if (databaseUrl.includes('koyeb') || databaseUrl.includes('ssl')) {
+      poolConfig.ssl = { rejectUnauthorized: false };
+    }
+    
+    const pool = new Pool(poolConfig);
     const adapterFactory = new PrismaPg(pool);
 
     super({
