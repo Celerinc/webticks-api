@@ -40,7 +40,8 @@ cp .env.example .env
 ```
 
 Edit `.env` and configure:
-- `DATABASE_URL`: Your PostgreSQL connection string
+- `DATABASE_URL`: Your PostgreSQL connection string (append `?sslmode=require` if your provider enforces SSL)
+- `DATABASE_URL`: Your PostgreSQL connection string (add `?sslmode=require` for managed providers)
 - `JWT_SECRET`: A secure random string for JWT signing (change in production!)
 
 3. Set up the database:

@@ -8,13 +8,10 @@ export class ApiKeysService {
   constructor(private prisma: PrismaService) {}
 
   async createApiKey(name?: string): Promise<{ key: string; id: string }> {
-    // Generate a secure random API key
     const rawKey = crypto.randomBytes(32).toString('hex');
     
-    // Hash the key before storing
     const keyHash = await bcrypt.hash(rawKey, 10);
     
-    // Store the hashed key
     const apiKey = await this.prisma.apiKey.create({
       data: {
         keyHash,

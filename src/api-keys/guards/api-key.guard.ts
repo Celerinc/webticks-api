@@ -25,7 +25,6 @@ export class ApiKeyGuard implements CanActivate {
       }
       return true;
     } catch (error) {
-      // If database error, still reject (security: fail closed)
       throw new ForbiddenException('Invalid API key');
     }
   }
