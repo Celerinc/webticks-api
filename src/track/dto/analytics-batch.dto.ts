@@ -1,4 +1,4 @@
-import { IsString, IsArray, IsOptional, ValidateNested, ArrayMinSize } from 'class-validator';
+import { IsString, IsArray, IsOptional, ValidateNested, ArrayMinSize, IsISO8601 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { PageViewEventDto } from './page-view-event.dto';
 import { CustomEventDto } from './custom-event.dto';
@@ -15,7 +15,7 @@ export class AnalyticsBatchDto {
   @IsString()
   sessionId: string;
 
-  @IsString()
+  @IsISO8601()
   datetime: string;
 
   @IsArray()

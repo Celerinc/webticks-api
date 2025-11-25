@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import * as bcrypt from 'bcrypt';
 import * as crypto from 'crypto';
 
 @Injectable()
@@ -8,10 +7,17 @@ export class ApiKeysService {
   constructor(private prisma: PrismaService) {}
 
   async createApiKey(name?: string): Promise<{ key: string; id: string }> {
+    // 1. Generate a random 32-byte key (64 hex characters)
     const rawKey = crypto.randomBytes(32).toString('hex');
     
-    const keyHash = await bcrypt.hash(rawKey, 10);
+    // 2. Create a deterministic SHA-256 hash of the key
+    // This allows us to re-create this hash later for direct lookup
+    const keyHash = crypto
+      .createHash('sha256')
+      .update(rawKey)
+      .digest('hex');
     
+    // 3. Store the hash directly
     const apiKey = await this.prisma.apiKey.create({
       data: {
         keyHash,
@@ -19,7 +25,6 @@ export class ApiKeysService {
       },
     });
     
-    // Return the raw key only once (this is the only time it's available)
     return {
       key: rawKey,
       id: apiKey.id,
@@ -27,21 +32,30 @@ export class ApiKeysService {
   }
 
   async validateApiKey(apiKey: string): Promise<boolean> {
-    const apiKeys = await this.prisma.apiKey.findMany();
-    
-    for (const keyRecord of apiKeys) {
-      const isValid = await bcrypt.compare(apiKey, keyRecord.keyHash);
-      if (isValid) {
-        // Update last used timestamp
-        await this.prisma.apiKey.update({
-          where: { id: keyRecord.id },
-          data: { lastUsedAt: new Date() },
-        });
-        return true;
-      }
+    // 1. Hash the incoming key using the same algorithm
+    const keyHash = crypto
+      .createHash('sha256')
+      .update(apiKey)
+      .digest('hex');
+
+    // 2. Direct O(1) database lookup using the unique keyHash
+    const keyRecord = await this.prisma.apiKey.findUnique({
+      where: { keyHash },
+    });
+
+    if (keyRecord) {
+      // 3. Async update of usage stats (fire-and-forget to avoid latency)
+      this.prisma.apiKey.update({
+        where: { id: keyRecord.id },
+        data: { lastUsedAt: new Date() },
+      }).catch(err => {
+        // Log error but don't fail the request
+        console.error('Failed to update API key lastUsedAt', err);
+      });
+
+      return true;
     }
     
     return false;
   }
 }
-
