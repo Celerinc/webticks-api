@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
-import { ApiKeysModule } from './api-keys/api-keys.module';
+import { KeysModule } from './keys/keys.module';
 import { TrackModule } from './track/track.module';
 
 @Module({
@@ -12,8 +12,8 @@ import { TrackModule } from './track/track.module';
     }),
     PrismaModule,
     AuthModule,
-    ApiKeysModule,
+    KeysModule,
     TrackModule,
   ],
 })
-export class AppModule {}
+export class AppModule { }
