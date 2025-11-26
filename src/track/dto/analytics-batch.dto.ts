@@ -1,4 +1,11 @@
-import { IsString, IsArray, IsOptional, ValidateNested, ArrayMinSize, IsISO8601 } from 'class-validator';
+import {
+  IsString,
+  IsArray,
+  IsOptional,
+  ValidateNested,
+  ArrayMinSize,
+  IsISO8601,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 import { PageViewEventDto } from './page-view-event.dto';
 import { CustomEventDto } from './custom-event.dto';
@@ -23,4 +30,3 @@ export class AnalyticsBatchDto {
   @IsValidEvent({ each: true })
   events: AnalyticsEventUnion[];
 }
-

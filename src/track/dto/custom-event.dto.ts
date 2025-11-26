@@ -20,4 +20,3 @@ export class CustomEventDto {
   @IsString()
   timestamp: string;
 }
-

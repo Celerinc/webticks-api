@@ -13,11 +13,10 @@ export function createPostgresAdapter(databaseUrl: string): PrismaPg {
   };
 
   const normalizedUrl = databaseUrl.toLowerCase();
-  if (SSL_FLAGS.some((flag) => normalizedUrl.includes(flag))) {
+  if (SSL_FLAGS.some(flag => normalizedUrl.includes(flag))) {
     poolConfig.ssl = { rejectUnauthorized: false };
   }
 
   const pool = new Pool(poolConfig);
   return new PrismaPg(pool);
 }
-

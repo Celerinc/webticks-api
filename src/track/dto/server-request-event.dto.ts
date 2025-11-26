@@ -24,4 +24,3 @@ export class ServerRequestEventDto {
   @IsString()
   timestamp: string;
 }
-

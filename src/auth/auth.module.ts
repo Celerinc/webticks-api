@@ -8,6 +8,8 @@ import { LocalStrategy } from './strategies/local.strategy';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { PrismaModule } from '../prisma/prisma.module';
 
+import { LocalUserStrategy } from './strategies/local-user.strategy';
+
 @Module({
   imports: [
     PrismaModule,
@@ -23,8 +25,7 @@ import { PrismaModule } from '../prisma/prisma.module';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, LocalStrategy, JwtStrategy],
+  providers: [AuthService, LocalStrategy, LocalUserStrategy, JwtStrategy],
   exports: [AuthService],
 })
-export class AuthModule {}
-
+export class AuthModule { }

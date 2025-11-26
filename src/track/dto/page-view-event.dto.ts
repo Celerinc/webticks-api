@@ -13,4 +13,3 @@ export class PageViewEventDto {
   @IsString()
   timestamp: string;
 }
-
