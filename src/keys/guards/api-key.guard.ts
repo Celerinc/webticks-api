@@ -1,9 +1,9 @@
 import { Injectable, CanActivate, ExecutionContext, ForbiddenException } from '@nestjs/common';
-import { ApiKeysService } from '../keys.service';
+import { KeysService } from '../keys.service';
 
 @Injectable()
 export class ApiKeyGuard implements CanActivate {
-  constructor(private apiKeysService: ApiKeysService) {}
+  constructor(private keysService: KeysService) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
@@ -14,7 +14,7 @@ export class ApiKeyGuard implements CanActivate {
     }
 
     try {
-      const isValid = await this.apiKeysService.validateApiKey(apiKey);
+      const isValid = await this.keysService.validateApiKey(apiKey);
       if (!isValid) {
         throw new ForbiddenException('Invalid API key');
       }
