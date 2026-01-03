@@ -1,7 +1,6 @@
 import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PrismaClient } from '@prisma/client';
-import { createPostgresAdapter } from './prisma-adapter.factory';
 
 @Injectable()
 export class PrismaService extends PrismaClient implements OnModuleInit, OnModuleDestroy {
@@ -11,10 +10,8 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
       throw new Error('DATABASE_URL is not configured');
     }
 
-    const adapter = createPostgresAdapter(databaseUrl);
-
+    // MongoDB doesn't need an adapter - connect directly
     super({
-      adapter,
       log: ['error', 'warn'],
     });
   }

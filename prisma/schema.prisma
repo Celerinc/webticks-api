@@ -21,14 +21,28 @@ model Admin {
 }
 
 model User {
-  id           String   @id @default(auto()) @map("_id") @db.ObjectId
-  email        String   @unique
+  id           String        @id @default(auto()) @map("_id") @db.ObjectId
+  email        String        @unique
   passwordHash String
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
   apiKeys      ApiKey[]
+  applications Application[]
 
   @@map("users")
+}
+
+model Application {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  appId     String   @unique
+  name      String
+  domain    String?
+  userId    String   @db.ObjectId
+  user      User     @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("applications")
 }
 
 model ApiKey {
