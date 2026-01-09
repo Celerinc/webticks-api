@@ -5,7 +5,7 @@
 To seed the database with test data:
 
 ```bash
-pnpm exec tsx scripts/seed-direct.ts
+pnpm run seed
 ```
 
 ## What Gets Created

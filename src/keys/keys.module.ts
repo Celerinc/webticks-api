@@ -1,10 +1,13 @@
 import { Module } from '@nestjs/common';
+import { MongooseModule } from '@nestjs/mongoose';
 import { KeysService } from './keys.service';
 import { KeysController } from './keys.controller';
-import { PrismaModule } from '../prisma/prisma.module';
+import { ApiKey, ApiKeySchema } from '../database/schemas';
 
 @Module({
-  imports: [PrismaModule],
+  imports: [
+    MongooseModule.forFeature([{ name: ApiKey.name, schema: ApiKeySchema }]),
+  ],
   controllers: [KeysController],
   providers: [KeysService],
   exports: [KeysService],

@@ -1,12 +1,20 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
 import * as crypto from 'crypto';
+import { ApiKey, ApiKeyDocument } from '../database/schemas';
 
 @Injectable()
 export class KeysService {
-  constructor(private prisma: PrismaService) { }
+  constructor(
+    @InjectModel(ApiKey.name) private apiKeyModel: Model<ApiKeyDocument>,
+  ) { }
 
-  async createApiKey(userId: string, type: 'backend' | 'public', name?: string): Promise<{ key: string; id: string }> {
+  async createApiKey(
+    userId: string,
+    type: 'backend' | 'public',
+    name?: string,
+  ): Promise<{ key: string; id: string }> {
     let keyHash: string | null = null;
     let publicKey: string | null = null;
     let rawKey: string;
@@ -21,41 +29,39 @@ export class KeysService {
       publicKey = rawKey;
     }
 
-    const apiKey = await this.prisma.apiKey.create({
-      data: {
-        keyHash,
-        publicKey,
-        type,
-        userId,
-        name: name || null,
-      },
+    const apiKey = await this.apiKeyModel.create({
+      keyHash,
+      publicKey,
+      type,
+      userId,
+      name: name || null,
     });
 
     return {
       key: rawKey,
-      id: apiKey.id,
+      id: apiKey._id.toString(),
     };
   }
 
   async validateApiKey(inputKey: string): Promise<boolean> {
     // 1. Check if it's a public key (exact match)
-    const publicKeyRecord = await this.prisma.apiKey.findUnique({
-      where: { publicKey: inputKey },
-    });
+    const publicKeyRecord = await this.apiKeyModel
+      .findOne({ publicKey: inputKey })
+      .exec();
 
     if (publicKeyRecord) {
-      this.updateLastUsed(publicKeyRecord.id);
+      this.updateLastUsed(publicKeyRecord._id.toString());
       return true;
     }
 
     // 2. Check if it's a backend key (hash match)
     const keyHash = crypto.createHash('sha256').update(inputKey).digest('hex');
-    const backendKeyRecord = await this.prisma.apiKey.findFirst({
-      where: { keyHash },
-    });
+    const backendKeyRecord = await this.apiKeyModel
+      .findOne({ keyHash })
+      .exec();
 
     if (backendKeyRecord) {
-      this.updateLastUsed(backendKeyRecord.id);
+      this.updateLastUsed(backendKeyRecord._id.toString());
       return true;
     }
 
@@ -63,32 +69,30 @@ export class KeysService {
   }
 
   async findAllByUserId(userId: string) {
-    return this.prisma.apiKey.findMany({
-      where: { userId },
-      select: {
-        id: true,
-        name: true,
-        type: true,
-        publicKey: true,
-        createdAt: true,
-        lastUsedAt: true,
-      },
-    });
+    const keys = await this.apiKeyModel
+      .find({ userId })
+      .select('name type publicKey createdAt lastUsedAt')
+      .exec();
+
+    return keys.map((key) => ({
+      id: key._id.toString(),
+      name: key.name,
+      type: key.type,
+      publicKey: key.publicKey,
+      createdAt: key.createdAt,
+      lastUsedAt: key.lastUsedAt,
+    }));
   }
 
   async deleteApiKey(id: string) {
-    return this.prisma.apiKey.delete({
-      where: { id },
-    });
+    return this.apiKeyModel.findByIdAndDelete(id).exec();
   }
 
   private updateLastUsed(id: string) {
-    this.prisma.apiKey
-      .update({
-        where: { id },
-        data: { lastUsedAt: new Date() },
-      })
-      .catch(err => {
+    this.apiKeyModel
+      .findByIdAndUpdate(id, { lastUsedAt: new Date() })
+      .exec()
+      .catch((err) => {
         console.error('Failed to update API key lastUsedAt', err);
       });
   }

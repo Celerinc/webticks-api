@@ -14,7 +14,7 @@ A production-ready NestJS REST API backend for collecting analytics data from a 
 ## Tech Stack
 
 - **Framework**: NestJS
-- **Database**: PostgreSQL with Prisma ORM
+- **Database**: MongoDB with Mongoose ODM
 - **Authentication**: Passport.js (JWT + Local strategies)
 - **Validation**: class-validator & class-transformer
 - **Security**: bcrypt for password hashing
@@ -22,7 +22,7 @@ A production-ready NestJS REST API backend for collecting analytics data from a 
 ## Prerequisites
 
 - Node.js (v18 or higher)
-- PostgreSQL database
+- MongoDB database
 - pnpm (recommended) or npm
 
 ## Installation
@@ -40,24 +40,19 @@ cp .env.example .env
 ```
 
 Edit `.env` and configure:
-- `DATABASE_URL`: Your PostgreSQL connection string (append `?sslmode=require` if your provider enforces SSL)
-- `DATABASE_URL`: Your PostgreSQL connection string (add `?sslmode=require` for managed providers)
+- `DATABASE_URL`: Your MongoDB connection string
 - `JWT_SECRET`: A secure random string for JWT signing (change in production!)
 
-3. Set up the database:
+3. (Optional) Seed the database:
 
 ```bash
-# Generate Prisma Client
-pnpm run prisma:generate
-
-# Run migrations
-pnpm run prisma:migrate
+pnpm run seed
 ```
 
 4. Start the development server:
 
 ```bash
-pnpm run start:dev
+pnpm run dev
 ```
 
 The API will be available at `http://localhost:3000/api`
@@ -204,34 +199,36 @@ src/
 │   ├── guards/
 │   ├── strategies/
 │   └── auth.module.ts
-├── api-keys/          # API Key management
+├── database/          # Mongoose schemas and database module
+│   ├── schemas/
+│   └── database.module.ts
+├── keys/              # API Key management
 │   ├── dto/
 │   ├── guards/
-│   └── api-keys.module.ts
+│   └── keys.module.ts
 ├── track/             # Analytics ingestion
 │   ├── dto/
 │   └── track.module.ts
-├── prisma/            # Prisma service
-│   └── prisma.module.ts
 └── main.ts            # Application entry point
 
-prisma/
-└── schema.prisma      # Database schema
+scripts/
+└── seed.ts            # Database seeding script
 ```
 
 ## Database Schema
 
 - **Admin**: Admin users for JWT authentication
+- **User**: Regular users who can create API keys and applications
+- **Application**: Applications registered by users
 - **ApiKey**: API keys for tracker client authentication (hashed)
 - **AnalyticsEvent**: Stored analytics events with JSON event data
 
 ## Scripts
 
-- `pnpm run start:dev` - Start development server with hot reload
+- `pnpm run dev` - Start development server with hot reload
 - `pnpm run build` - Build for production
 - `pnpm run start:prod` - Run production build
-- `pnpm run prisma:generate` - Generate Prisma Client
-- `pnpm run prisma:migrate` - Run database migrations
+- `pnpm run seed` - Seed the database with test data
 - `pnpm run test` - Run unit tests
 - `pnpm run test:e2e` - Run end-to-end tests
 
