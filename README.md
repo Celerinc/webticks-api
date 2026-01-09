@@ -1,242 +1,70 @@
-# WebTicks API
+# WebTicks API - Quick Start Guide
 
-A production-ready NestJS REST API backend for collecting analytics data from a custom JavaScript analytics library.
+A NestJS backend for collecting analytics data.
 
-## Features
+## Get Started in 2 Minutes
 
-- **Dual Authentication System**:
-  - API Key authentication for tracker clients (data ingestion)
-  - JWT authentication for admin users (management operations)
-- **Analytics Event Collection**: Supports multiple event types (pageview, custom, server_request)
-- **Secure API Key Management**: Hashed storage with one-time display
-- **Production-Ready**: Includes validation, error handling, and proper security practices
+1. **Install Dependencies**
+   ```bash
+   pnpm install
+   ```
 
-## Tech Stack
+2. **Configure Environment**
+   ```bash
+   cp .env.example .env
+   ```
+   *Required:* `DATABASE_URL` (MongoDB) and `JWT_SECRET`.
 
-- **Framework**: NestJS
-- **Database**: MongoDB with Mongoose ODM
-- **Authentication**: Passport.js (JWT + Local strategies)
-- **Validation**: class-validator & class-transformer
-- **Security**: bcrypt for password hashing
+3. **Initialize Database**
+   ```bash
+   pnpm run seed
+   ```
+   *Creates superadmin (`admin@webticks.com` / `supersecret`) and a test app.*
 
-## Prerequisites
+4. **Run Server**
+   ```bash
+   pnpm run dev
+   ```
+   *API runs at `http://localhost:3002/api`*
 
-- Node.js (v18 or higher)
-- MongoDB database
-- pnpm (recommended) or npm
+## Core Integration
 
-## Installation
+### Tracking Events
+Send a POST request to `/api/track` with the `webticks-app-id` header.
 
-1. Clone the repository and install dependencies:
+**Header:** `webticks-app-id: 97069816-8b25-4640-833f-f17259208a42` (default seed ID)
 
-```bash
-pnpm install
-```
-
-2. Set up environment variables:
-
-```bash
-cp .env.example .env
-```
-
-Edit `.env` and configure:
-- `DATABASE_URL`: Your MongoDB connection string
-- `JWT_SECRET`: A secure random string for JWT signing (change in production!)
-
-3. (Optional) Seed the database:
-
-```bash
-pnpm run seed
-```
-
-4. Start the development server:
-
-```bash
-pnpm run dev
-```
-
-The API will be available at `http://localhost:3000/api`
-
-## API Endpoints
-
-### Authentication (Admin)
-
-#### Login
-```http
-POST /api/auth/login
-Content-Type: application/json
-
-{
-  "email": "admin@example.com",
-  "password": "password123"
-}
-```
-
-**Response:**
+**Body:**
 ```json
 {
-  "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-}
-```
-
-Use this token in the `Authorization: Bearer <token>` header for protected endpoints.
-
-### API Key Management (Protected - Requires JWT)
-
-#### Create API Key
-```http
-POST /api/keys
-Authorization: Bearer <jwt-token>
-Content-Type: application/json
-
-{
-  "name": "My Tracker Client" // optional
-}
-```
-
-**Response:**
-```json
-{
-  "id": "uuid",
-  "key": "abc123...",
-  "message": "Store this key securely. It will not be shown again."
-}
-```
-
-**⚠️ Important**: The raw API key is only returned once. Store it securely!
-
-### Analytics Ingestion (Protected - Requires API Key)
-
-#### Track Events
-```http
-POST /api/track
-x-api-key: <your-api-key>
-Content-Type: application/json
-
-{
-  "uid": "user-123", // optional
-  "sessionId": "session-456",
-  "datetime": "2024-01-15T10:30:00Z",
+  "uid": "user_123",
+  "sessionId": "session_456",
+  "datetime": "2024-01-01T00:00:00Z",
   "events": [
-    {
-      "type": "pageview",
-      "path": "/home",
-      "requestId": "req-789",
-      "timestamp": "2024-01-15T10:30:00Z"
-    },
-    {
-      "type": "custom",
-      "name": "button_click",
-      "details": { "buttonId": "submit" },
-      "path": "/home",
-      "requestId": "req-790",
-      "timestamp": "2024-01-15T10:30:01Z"
-    },
-    {
-      "type": "server_request",
-      "method": "GET",
-      "path": "/api/data",
-      "query": { "page": "1" },
-      "headers": { "user-agent": "..." },
-      "requestId": "req-791",
-      "timestamp": "2024-01-15T10:30:02Z"
-    }
+    { "type": "pageview", "path": "/" }
   ]
 }
 ```
 
-**Response:**
-```json
-{
-  "success": true,
-  "eventsProcessed": 3
-}
-```
+### Admin Login
+POST `/api/auth/login` with admin credentials to receive a JWT.
 
-## Event Types
+---
+*For full details on authentication and event types, refer to the source code in `src/auth` and `src/track`.*
 
-### PageView Event
-```typescript
-{
-  type: 'pageview';
-  path: string;
-  requestId: string;
-  timestamp: string; // ISO 8601
-}
-```
+## Auth & Key Management
 
-### Custom Event
-```typescript
-{
-  type: 'custom';
-  name: string;
-  details: Record<string, any>;
-  path?: string; // optional
-  requestId: string;
-  timestamp: string; // ISO 8601
-}
-```
+### User Authentication
+| Action | Endpoint | Auth | Body |
+|--------|----------|------|------|
+| **Register** | `POST /api/auth/register` | *None* | `{ email, password }` |
+| **User Login** | `POST /api/auth/user/login` | *None* | `{ email, password }` |
+| **Admin Login** | `POST /api/auth/admin/login` | *None* | `{ email, password }` |
 
-### Server Request Event
-```typescript
-{
-  type: 'server_request';
-  method: string;
-  path: string;
-  query?: Record<string, any>; // optional
-  headers?: Record<string, any>; // optional
-  requestId: string;
-  timestamp: string; // ISO 8601
-}
-```
+### Key Management
+*Requires Bearer Token from Login*
 
-## Project Structure
-
-```
-src/
-├── auth/              # Admin authentication (JWT)
-│   ├── dto/
-│   ├── guards/
-│   ├── strategies/
-│   └── auth.module.ts
-├── database/          # Mongoose schemas and database module
-│   ├── schemas/
-│   └── database.module.ts
-├── keys/              # API Key management
-│   ├── dto/
-│   ├── guards/
-│   └── keys.module.ts
-├── track/             # Analytics ingestion
-│   ├── dto/
-│   └── track.module.ts
-└── main.ts            # Application entry point
-
-scripts/
-└── seed.ts            # Database seeding script
-```
-
-## Database Schema
-
-- **Admin**: Admin users for JWT authentication
-- **User**: Regular users who can create API keys and applications
-- **Application**: Applications registered by users
-- **ApiKey**: API keys for tracker client authentication (hashed)
-- **AnalyticsEvent**: Stored analytics events with JSON event data
-
-## Scripts
-
-- `pnpm run dev` - Start development server with hot reload
-- `pnpm run build` - Build for production
-- `pnpm run start:prod` - Run production build
-- `pnpm run seed` - Seed the database with test data
-- `pnpm run test` - Run unit tests
-- `pnpm run test:e2e` - Run end-to-end tests
-
-## Security Considerations
-
-1. **Change Default Credentials**: Update the admin email/password in production
-2. **Use Strong JWT Secret**: Generate a secure random string for `JWT_SECRET`
-3. **Secure Database**: Use strong database credentials and restrict access
-4. **HTTPS**: Always use HTTPS in production
-5. **Rate Limiting**: Consider adding rate limiting for production use
-6. **API Key Rotation**: Implement a key rotation strategy for API keys
+- **Create Key**: `POST /api/keys`
+  - Body: `{ "type": "backend" | "public", "name": "Key Name" }`
+  - *Returns raw key once. Store securely!*
+- **List My Keys**: `GET /api/keys`
