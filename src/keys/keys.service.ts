@@ -1,13 +1,16 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import * as crypto from 'crypto';
-import { ApiKey, ApiKeyDocument } from '../database/schemas';
+import { ApiKey, ApiKeyDocument, Application, ApplicationDocument } from '../database/schemas';
 
 @Injectable()
 export class KeysService {
+  private readonly logger = new Logger(KeysService.name);
+
   constructor(
     @InjectModel(ApiKey.name) private apiKeyModel: Model<ApiKeyDocument>,
+    @InjectModel(Application.name) private applicationModel: Model<ApplicationDocument>,
   ) { }
 
   async createApiKey(
@@ -41,6 +44,18 @@ export class KeysService {
       key: rawKey,
       id: apiKey._id.toString(),
     };
+  }
+
+  async validateAppId(appId: string): Promise<boolean> {
+    this.logger.debug(`Validating appId: ${appId}`);
+
+    const application = await this.applicationModel
+      .findOne({ appId })
+      .exec();
+
+    this.logger.debug(`Database lookup result: ${application ? JSON.stringify({ appId: application.appId, name: application.name }) : 'NOT FOUND'}`);
+
+    return !!application;
   }
 
   async validateApiKey(inputKey: string): Promise<boolean> {
