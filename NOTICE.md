@@ -1,9 +1,9 @@
-[INSERT_API_PRODUCT_NAME]
+[WebTicks API]
 
-Copyright [INSERT_YEAR] [INSERT_COPYRIGHT_HOLDER_NAME]
+Copyright [2026] [CELERINC]
 
-This product includes software developed by [INSERT_COPYRIGHT_HOLDER_NAME].
+This product includes software developed by [CELERINC].
 
 Additional Credits
 
-Powered by [HiddenQ] Analytics Engine
+Powered by [CELERINC] Analytics Engine
