@@ -1,10 +1,28 @@
 {
   "name": "webticks-api",
   "version": "0.0.1",
-  "description": "",
-  "author": "",
+  "description": "WebTicks Analytics API - Backend service for collecting and processing web analytics events",
+  "author": "Celerinc Team",
   "private": true,
-  "license": "UNLICENSED",
+  "license": "Apache-2.0",
+  "keywords": [
+    "analytics",
+    "web-analytics",
+    "tracking",
+    "events",
+    "nestjs",
+    "api",
+    "webticks",
+    "celerinc"
+  ],
+  "homepage": "https://github.com/celerinc/webticks-api#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/celerinc/webticks-api.git"
+  },
+  "bugs": {
+    "url": "https://github.com/celerinc/webticks-api/issues"
+  },
   "scripts": {
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
