@@ -29,6 +29,7 @@ resource "azurerm_cosmosdb_account" "main" {
   offer_type          = "Standard"
   kind                = "MongoDB"
   mongo_server_version = "4.2"
+  free_tier_enabled    = true
 
   consistency_policy {
     consistency_level = "Session"
@@ -45,6 +46,10 @@ resource "azurerm_cosmosdb_account" "main" {
 
   capabilities {
     name = "mongoEnableDocLevelTTL"
+  }
+
+  capabilities {
+    name = "EnableMongoRoleBasedAccessControl"
   }
 
   public_network_access_enabled = true
