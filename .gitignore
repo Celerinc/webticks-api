@@ -60,6 +60,14 @@ Thumbs.db
 # NestJS
 .nest/
 
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.backup
+*.tfstate.lock.info
+terraform/.terraform.lock.hcl
+terraform/terraform.tfvars
+
 # Optional: Keep package-lock.json (recommended for npm projects)
 # If using yarn, uncomment the next line
 # package-lock.json

@@ -1,0 +1,6 @@
+location         = "West Europe"
+acr_name         = "webticksprd"
+app_service_name = "webticks-api-prd"
+sku_name         = "B1"
+database_url     = "mongodb+srv://..."
+jwt_secret       = "your-secret-here"

@@ -1,0 +1,56 @@
+trigger:
+  branches:
+    include:
+      - main
+
+variables:
+  acrName: webticksprd
+  imageName: webticks-api
+  webAppName: webticks-api-prd
+  tag: $(Build.BuildId)
+
+  # Service connection names — create these in:
+  # Azure DevOps > Project Settings > Service Connections
+  acrServiceConnection: webticks-acr-sc       # Docker Registry type → Azure Container Registry
+  azureServiceConnection: webticks-azure-sc   # Azure Resource Manager type
+
+stages:
+  - stage: Build
+    displayName: Build & push image
+    jobs:
+      - job: BuildAndPush
+        displayName: Docker build & push to ACR
+        pool:
+          vmImage: ubuntu-latest
+        steps:
+          - task: Docker@2
+            displayName: Build and push
+            inputs:
+              containerRegistry: $(acrServiceConnection)
+              repository: $(imageName)
+              command: buildAndPush
+              Dockerfile: Dockerfile
+              tags: |
+                $(tag)
+                latest
+
+  - stage: Deploy
+    displayName: Deploy to App Service
+    dependsOn: Build
+    condition: succeeded()
+    jobs:
+      - deployment: DeployToAppService
+        displayName: Deploy container
+        pool:
+          vmImage: ubuntu-latest
+        environment: production
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - task: AzureWebAppContainer@1
+                  displayName: Deploy to Linux Web App
+                  inputs:
+                    azureSubscription: $(azureServiceConnection)
+                    appName: $(webAppName)
+                    containers: $(acrName).azurecr.io/$(imageName):$(tag)
