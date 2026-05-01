@@ -57,16 +57,9 @@ Thumbs.db
 *.swp
 *.swo
 
-# Prisma
-# Uncomment if you have Prisma migrations you want to ignore
-# prisma/migrations/
-
 # NestJS
 .nest/
 
 # Optional: Keep package-lock.json (recommended for npm projects)
 # If using yarn, uncomment the next line
 # package-lock.json
-
-
-/generated/prisma
