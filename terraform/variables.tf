@@ -19,13 +19,19 @@ variable "app_service_name" {
 variable "sku_name" {
   description = "App Service Plan SKU"
   type        = string
-  default     = "B1"
+  default     = "B2"
 }
 
-variable "database_url" {
-  description = "MongoDB connection string"
+variable "cosmos_account_name" {
+  description = "Cosmos DB account name (globally unique)"
   type        = string
-  sensitive   = true
+  default     = "webticks-prd-cosmos"
+}
+
+variable "cosmos_database_name" {
+  description = "Cosmos DB MongoDB database name"
+  type        = string
+  default     = "webticks"
 }
 
 variable "jwt_secret" {
